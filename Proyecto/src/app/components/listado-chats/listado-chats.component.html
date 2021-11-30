@@ -1,0 +1,10 @@
+<div class="chat-item" (click)="cargarConversacion(chat)">
+    <img src="/assets/img/profile-pics/{{chat.imagenDestinatario}}" class="rounded-circle big-avatar">
+    <div class="cuerpo-chat">
+        <div class="encabezado-chat">
+            <span>{{chat.nombreDestinatario}}</span>
+            <span>{{chat.horaUltimoMensaje}}</span>
+        </div>
+        <span>{{chat.ultimoMensaje}}</span>
+    </div>
+</div>

@@ -1,0 +1,172 @@
+
+<nav class="navbar navbar-dark bg-dark">
+
+    <div class="container-fluid">
+
+        <a class="navbar-brand fw-normal" id="brandLink" href="#" *ngIf="verConversacion == false">WhastApp</a>
+
+        <div class="chat-header" id="chatHeader" *ngIf="verConversacion">
+            <button class="boton-back" title="volver" (click)="verContactosUsuario()" *ngIf="activarBtnConversacion">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
+                </svg>
+            </button>
+            <button class="boton-back" title="volver" (click)="verChatsUsuario()" *ngIf="!activarBtnConversacion">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
+                </svg>
+            </button>
+            <img src="assets/img/profile-pics/{{usuarioConversacion.imagen}}" class="rounded-circle big-avatar" id="avatarChatUsuario" alt="avatar del usuario">
+            <div class="usuario-chat">
+                <span id="nombreChatUsuario">{{usuarioConversacion.nombre}}</span>
+                <span>Online</span>
+            </div>
+        </div>
+
+        <button class="ml-auto selector-usuario" (click) = "verListaUsuarios()" *ngIf="verConversacion == false">
+            <img [src]="userSelect" class="rounded-circle mini-avatar" alt="Seleccionar usuario">
+            <i class="fas fa-caret-down"></i>
+        </button>
+
+        <!-- SELECCIONAR USUARIO -->
+        <div class="container contenedor-lista-usuarios" *ngIf="viewListUsers && verConversacion == false">
+            <p>Seleccione un usuario</p>
+
+            <!-- LISTA USUARIOS -->
+            <div class="d-flex flex-row flex-wrap justify-content-start lista-usuarios">
+                
+                <app-lista-usuarios (onSelectUser)="onCargarDatosUsuario($event)"   [user]="usuario" *ngFor="let usuario of users" ></app-lista-usuarios>
+            
+            </div>
+            
+        </div>
+    </div>
+</nav>
+
+
+
+<div class="contenido" id="contenido" *ngIf="verConversacion == false">
+
+    <!-- OPCIONES DE NAVEGACION CHAT O CONTACT -->
+    <ul class="nav justify-content-around nav-pills mb-3 pt-3" id="pills-tab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link styleNavLink" (click)="verChatsUsuario()" [ngStyle]="{'border-bottom': styleNavLinkChats}" type="button">CHATS</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link styleNavLink" (click)="verContactosUsuario()" [ngStyle]="{'border-bottom': styleNavLinkContacts}" type="button">CONTACTS</button>
+        </li>
+    </ul>
+
+    <!-- CHATs USER -->
+    <div class="tab-content"  >
+
+        <!-- **** LISTA CHATS ***** -->
+        <div class="tab-pane fade  show active" aria-labelledby="pillsChatsTab" *ngIf="viewChats">
+            
+            <p class="msjChatsusers" *ngIf="oncargarChatsUsuario == false">Chats no disponibles, seleccione un usuario.</p>
+            
+            <div *ngIf="oncargarChatsUsuario">
+                <app-listado-chats  (onConversacion) = "cargarConversacionUsr($event)" [chat]="chatUsr"  *ngFor="let chatUsr of chatsUsuario" ></app-listado-chats>
+            </div>
+
+        </div>
+
+        <!-- NUEVO CONTACTO Y CONTENEDOR DE LOS CONTACTOS -->
+        <div *ngIf="viewChats == false && verConversacion ==false && oncargarChatsUsuario" >
+
+            <!-- MODAL NUEVO CONTACTO -->
+            <div class="text-center">
+                <button class="btn btn-success"  (click)="open(myModal)">Nuevo Contacto</button>
+            </div>
+            
+            <!-- LISTA CONTACTOS USUARIO -->
+            <div class="contenedor-contactos" >
+                                
+                <app-lista-contactos (onConversacionContact)="cargarConversacionContacto($event)" [contact]="contacto" *ngFor="let contacto of contactosUsuario"></app-lista-contactos>
+            
+            </div>
+
+        </div>
+
+    </div>
+    
+</div>
+
+
+<!-- CONVERSACION, CONTENIDO CHAT-->
+<div class="contenido-chat" *ngIf="verConversacion">
+
+    <!-- CONTENEDOR CHAT USUARIO CON CONTACTO -->
+    <div class="chat-body">
+
+        <div *ngFor="let msj of mensajesConversacion">
+
+            <div class="chat-bubble" [ngClass]="{me: msj.emisor ==userSelectId,contact:msj.emisor !=userSelectId}">
+                    <div *ngIf="msj.tipo != 'sticker'">
+                        {{msj.mensaje}}
+                    </div>
+    
+                    <img *ngIf="msj.tipo == 'sticker'" src="/assets/img/stickers/{{msj.stiker}}.webp" class="sticker-preview" alt="sticker">
+                    
+                    <div class="text-end text-muted">{{msj.hora}}</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- STICKERS -->
+    <div class="chat-footer">
+
+        <button class="btn btn-stickers"   (click)="mostrarListaStickers()">
+            <img src="assets/img/sticker-icon.svg" alt="">
+        </button>
+
+        <input type="text" id="chatInput" [(ngModel)]="mensajeNuevo" class="form-control">
+        <button class="btn btn-success btn-send" (click)="enviarMensaje()">Enviar</button>
+
+        <div class="container fade show contenedor-stickers" *ngIf="viewStickers" >
+
+            <!-- LISTADO STICKES, ESTRUCTURA -->
+            <div class="lista-stickers">
+
+                <app-lista-stickers (onClickSticker)="sendSticker($event)" [stickerr]="sticker" *ngFor="let sticker of stickers"></app-lista-stickers>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- MODAL AGREGAR CONTACTO -->
+<ng-template #myModal let-modal >
+    <div class="modal-content"> 
+        <div class="modal-header">
+            <h5 class="modal-title" id="contactModalLabel" >Agregar Contacto</h5>
+            <button type="button" class="btn-close" (click)="close()" >X</button>
+        </div>
+
+        <!-- LISTA CONTACTOS NUEVOS -->
+        <div class="modal-body">
+            <div id="listaContactosNuevos">
+
+                <!--ESTRUCTURA USUARIO DISPONIBLE PARA AGREGAR COMO CONTACTO -->
+                <div *ngFor="let user of usuariosNuevosAggModal">
+                    <div class="contacto-item"  (click)="setContactoAgregar(user)">
+                        <img src="assets/img/profile-pics/{{user.imagen}}" class="rounded-circle big-avatar" alt="avatar del usuario">
+                        <div class="cuerpo-contacto">
+                            <span>{{user.nombre}}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-danger" (click)="close()" >Cancelar</button>
+
+            <!-- CUANDO EL USUARIO SELECCIONE UN CONTACTO, SE HABILITARA EL BOTON PARA AGREGAR -->
+            <button type="button" class="btn btn-success" id="btnAgregarContacto" *ngIf="idContactoAgregar =='' "  disabled>Agregar</button>
+            <button type="button" class="btn btn-success" id="btnAgregarContacto"  *ngIf="idContactoAgregar!='' "(click)="agregarContacto()" >Agregar</button>
+        </div>      
+    </div>
+
+</ng-template>
